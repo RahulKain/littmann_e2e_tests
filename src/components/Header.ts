@@ -38,4 +38,13 @@ export class Header {
     async clickWhereToBuy() {
         await this.whereToBuyMenu.click();
     }
+
+    async hoverProducts() {
+        await this.productsMenu.hover();
+    }
+
+    getSubmenuLink(name: string): Locator {
+        return this.page.getByRole('link', { name: new RegExp(name, 'i') })
+            .or(this.page.getByRole('menuitem', { name: new RegExp(name, 'i') }));
+    }
 }
