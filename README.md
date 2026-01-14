@@ -4,6 +4,8 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
 
+![Littmann Cover](./image/littimann-cover-image.png)
+
 ## 📋 Executive Summary
 
 This repository hosts the **Enterprise E2E Automation Framework** for [Littmann Stethoscopes India](https://www.littmann.in/3M/en_IN/littmann-stethoscopes-in/). It serves as the primary validation layer for critical business flows, ensuring high reliability and user experience standards.
