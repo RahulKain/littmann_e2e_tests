@@ -46,10 +46,10 @@ Detailed documentation is strictly separated by concern. Please refer to the spe
 
 | Document | Purpose | Audience |
 |----------|---------|----------|
-| [**📘 Blueprint**](./blueprint.md) | **Primary Entry Point.** execution workflow, phases, and AI agent instructions. | Agents & Leads |
-| [**📏 Standards**](./AI_TEST_STANDARDS.md) | **Strict** coding standards, locator strategies, and architectural rules. | Everyone |
-| [**🧪 Test Creation**](./createtest_instructions.md) | Step-by-step guide for implementing atomic test cases. | SDETs |
-| [**💾 Git Strategy**](./githubpush_instructions.md) | granular commit policy and push procedures. | Everyone |
+| [**📘 Blueprint**](./docs/blueprint.md) | **Primary Entry Point.** execution workflow, phases, and AI agent instructions. | Agents & Leads |
+| [**📏 Standards**](./docs/AI_TEST_STANDARDS.md) | **Strict** coding standards, locator strategies, and architectural rules. | Everyone |
+| [**🧪 Test Creation**](./docs/createtest_instructions.md) | Step-by-step guide for implementing atomic test cases. | SDETs |
+| [**💾 Git Strategy**](./docs/githubpush_instructions.md) | granular commit policy and push procedures. | Everyone |
 | [**📋 Test Plan**](./testcases.md) | Detailed test specifications and coverage. | Everyone |
 
 ---
