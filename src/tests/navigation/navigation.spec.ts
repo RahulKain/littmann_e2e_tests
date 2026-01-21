@@ -352,20 +352,19 @@ test.describe('Module 1: Navigation & Page Load', () => {
             await expect(heading).toBeVisible();
             console.log('TC009: Verified page heading visible');
         } else {
-            console.log('TC009: No href found, assuming dropdown interaction...');
+            console.log('TC009: No href on parent, interacting with dropdown "Whats Happening"...');
 
-            // Debug block to find items if unknown
-            try {
-                // "Whats Happening" is the observed item from debug logs
-                const newsItem = homePage.header.getSubmenuLink('Whats Happening').first();
-                await expect(newsItem).toBeVisible();
-                console.log('TC009: Verified "Whats Happening" visible');
-            } catch (e) {
-                console.log('TC009: Dropdown check failed. Dumping ALL NAV links...');
-                const links = await page.evaluate(() => Array.from(document.querySelectorAll('nav a, div[class*="nav"] a')).map(a => a.innerText));
-                console.log('VISIBLE NAV LINKS:', links.join(' | '));
-                throw e;
-            }
+            const newsItem = homePage.header.getSubmenuLink('Whats Happening').first();
+            await expect(newsItem).toBeVisible();
+            await newsItem.click();
+
+            // Verify navigation
+            await expect(page).toHaveURL(/promotions|news/i);
+            console.log('TC009: Verified navigation to Promotions/News page');
+
+            // Verify heading if possible (Promotions page usually has h1 or h2)
+            const heading = page.locator('h1, h2').first();
+            await expect(heading).toBeVisible();
         }
 
         console.log('TC009: Test completed successfully.');
@@ -397,15 +396,7 @@ test.describe('Module 1: Navigation & Page Load', () => {
 
         // ASSERT
         console.log('TC010: Verifying page load...');
-        try {
-            await whereToBuyPage.isLoaded();
-        } catch (e) {
-            console.log('TC010: Verification failed. Debugging...');
-            console.log('TC010: Current URL:', page.url());
-            const headings = await page.evaluate(() => Array.from(document.querySelectorAll('h1, h2, h3')).map(h => h.innerText));
-            console.log('TC010: Visible Headings:', headings.join(' | '));
-            throw e;
-        }
+        await whereToBuyPage.isLoaded();
 
         console.log('TC010: Test completed successfully.');
     });
