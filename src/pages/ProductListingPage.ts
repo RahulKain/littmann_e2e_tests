@@ -10,40 +10,89 @@ export class ProductListingPage {
     readonly pageHeading: Locator;
     readonly filtersSection: Locator;
     readonly productGrid: Locator;
+    readonly productCards: Locator;
+    readonly clearFiltersButton: Locator;
 
     constructor(page: Page) {
         this.page = page;
         this.header = new Header(page);
         this.footer = new Footer(page);
 
-        // Locators - using loose matchers initially
+        // Locators
         this.pageHeading = page.getByRole('heading', { level: 1 });
 
-        // Filters usually in a sidebar or top bar
-        this.filtersSection = page.locator('.filter-container, #filters, aside');
+        // Filters sidebar (left-hand navigation)
+        this.filtersSection = page.locator('.m-lhn, .sps2-lhn, aside').first();
 
         // Product grid wrapper
-        this.productGrid = page.locator('.product-grid, .grid-layout, [role="list"]');
+        this.productGrid = page.locator('.mds-grid, .product-grid').first();
+
+        // Product cards (links to products)
+        this.productCards = page.locator('a.mds-link');
+
+        // Clear filters button
+        this.clearFiltersButton = page.getByRole('button', { name: /clear|reset/i });
     }
 
     async isLoaded() {
         await expect(this.page).toHaveURL(/\/p\//);
         await expect(this.pageHeading).toBeVisible();
+        await expect(this.productGrid).toBeVisible();
+    }
+
+    async getProductCount(): Promise<number> {
+        return await this.productCards.count();
+    }
+
+    async filterByCategory(category: string) {
+        // Click on category filter in sidebar
+        const categoryButton = this.filtersSection.getByRole('button', { name: new RegExp(category, 'i') });
+        await categoryButton.click();
+        // Wait for grid to update
+        await this.page.waitForTimeout(1000);
+    }
+
+    async filterByColor(color: string) {
+        // Expand color filter section if needed
+        const colorSection = this.filtersSection.getByText(/color/i).first();
+        if (await colorSection.isVisible()) {
+            await colorSection.click();
+        }
+
+        // Select color
+        const colorOption = this.filtersSection.getByRole('button', { name: new RegExp(color, 'i') });
+        await colorOption.click();
+        await this.page.waitForTimeout(1000);
+    }
+
+    async clearFilters() {
+        if (await this.clearFiltersButton.isVisible()) {
+            await this.clearFiltersButton.click();
+            await this.page.waitForTimeout(1000);
+        }
+    }
+
+    async getProductCardDetails(index: number = 0) {
+        const card = this.productCards.nth(index);
+        const title = await card.locator('p').first().innerText();
+        const image = card.locator('img').first();
+        const isImageVisible = await image.isVisible();
+
+        return {
+            title,
+            hasImage: isImageVisible
+        };
     }
 
     async selectFirstProduct() {
-        // Use text-based filtering which is more robust than guessing CSS classes
-        // Based on debug output: "3M™ Littmann® Classic III™ Monitoring Stethoscope..."
-        const productLink = this.page.locator('a').filter({ hasText: /Classic III|Cardiology IV|Master Cardiology/i }).first();
+        const firstCard = this.productCards.first();
+        await expect(firstCard).toBeVisible();
+        await firstCard.click();
+    }
 
-        try {
-            await productLink.waitFor({ state: 'visible', timeout: 5000 });
-            await productLink.click();
-        } catch (e) {
-            console.log('TC011: Failed to find product link via text. Dumping ALL links...');
-            const links = await this.page.evaluate(() => Array.from(document.querySelectorAll('a')).map(a => a.innerText));
-            console.log('VISIBLE LINKS:', links.join(' | '));
-            throw e;
-        }
+    async selectProductByIndex(index: number) {
+        const card = this.productCards.nth(index);
+        await expect(card).toBeVisible();
+        await card.click();
     }
 }

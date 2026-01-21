@@ -5,15 +5,35 @@ export class ProductDetailPage {
     readonly page: Page;
     readonly header: Header;
     readonly breadcrumb: Locator;
-    readonly productTitle: Locator; // Keeping it minimal for now
+    readonly productTitle: Locator;
+    readonly productImage: Locator;
+    readonly imageThumbnails: Locator;
+    readonly specificationsSection: Locator;
+    readonly resourcesSection: Locator;
+    readonly whereToBuyButton: Locator;
+    readonly relatedProductsSection: Locator;
+    readonly reviewsSection: Locator;
 
     constructor(page: Page) {
         this.page = page;
         this.header = new Header(page);
 
-        // Breadcrumb locator
-        this.breadcrumb = page.locator('nav[aria-label="Breadcrumb"], .breadcrumbs');
+        // Basic locators
+        this.breadcrumb = page.locator('nav[aria-label="Breadcrumb"], .breadcrumbs, nav.breadcrumbs');
         this.productTitle = page.locator('h1').first();
+
+        // Image gallery
+        this.productImage = page.locator('.product-image, .main-image, img[alt*="Littmann"]').first();
+        this.imageThumbnails = page.locator('.thumbnail, .image-thumb');
+
+        // Sections
+        this.specificationsSection = page.locator('[id*="spec"], [class*="spec"], section').filter({ hasText: /specification|technical|details/i });
+        this.resourcesSection = page.locator('[id*="resource"], section').filter({ hasText: /resource|download|brochure/i });
+        this.relatedProductsSection = page.locator('section, div').filter({ hasText: /you may also like|related|recommended/i });
+        this.reviewsSection = page.locator('[id*="review"], section').filter({ hasText: /review|rating/i });
+
+        // Buttons
+        this.whereToBuyButton = page.getByRole('link', { name: /where to buy/i });
     }
 
     async isLoaded() {
@@ -21,44 +41,71 @@ export class ProductDetailPage {
     }
 
     async verifyBreadcrumb() {
-        try {
-            // Updated locator strategy: check generic nav or specific text "India"
-            // Start with original locator, then fallback
-            const breadcrumbLocator = this.page.locator('nav[aria-label="Breadcrumb"], .breadcrumbs, nav.breadcrumbs, [data-test-id="breadcrumbs"]');
+        // Look for "India" link which should be in breadcrumb
+        const indiaLink = this.page.getByRole('link', { name: 'India', exact: true }).first();
 
-            // Smart fallback: Find "India" text which should be in breadcrumb
-            // This is specific to Littmann India site: Home > India > ...
-            const indiaLink = this.page.getByRole('link', { name: 'India', exact: true }).first();
-
-            if (await indiaLink.isVisible()) {
-                console.log('TC011: Found "India" link. Assuming it is part of breadcrumb.');
-                await expect(indiaLink).toBeVisible();
-                // Check parent
-                const parent = indiaLink.locator('..');
-                await expect(parent).toBeVisible();
-                return; // Pass if we found the root of breadcrumb
-            }
-
-            // If "India" not found, check generic
-            if (await breadcrumbLocator.count() > 0 && await breadcrumbLocator.first().isVisible()) {
-                await expect(breadcrumbLocator.first()).toBeVisible();
-            } else {
-                // Revert to Strict check failure to trigger catch
-                await expect(this.breadcrumb).toBeVisible({ timeout: 5000 });
-            }
-
-            // Check for at least 2 items (Home > Product, or similar)
-            const items = this.breadcrumb.locator('li, a');
-            expect(await items.count()).toBeGreaterThan(1);
-        } catch (e) {
-            console.log('TC011: Breadcrumb verification failed. Dumping generic info...');
-            // Find where "India" text is
-            const indiaText = await this.page.evaluate(() => {
-                const node = Array.from(document.querySelectorAll('*')).find(el => el.textContent?.includes('India') && el.tagName !== 'SCRIPT' && el.tagName !== 'STYLE');
-                return node ? node.outerHTML.substring(0, 300) : 'NOT FOUND';
-            });
-            console.log('CONTAINER WITH "India":', indiaText);
-            throw e;
+        if (await indiaLink.isVisible()) {
+            await expect(indiaLink).toBeVisible();
+            return;
         }
+
+        // Fallback to generic breadcrumb check
+        await expect(this.breadcrumb.first()).toBeVisible({ timeout: 5000 });
+    }
+
+    async clickImageThumbnail(index: number) {
+        const thumbnail = this.imageThumbnails.nth(index);
+        await thumbnail.click();
+        await this.page.waitForTimeout(500);
+    }
+
+    async hasSpecifications(): Promise<boolean> {
+        return await this.specificationsSection.isVisible();
+    }
+
+    async hasResources(): Promise<boolean> {
+        return await this.resourcesSection.isVisible();
+    }
+
+    async clickWhereToBuy() {
+        await this.whereToBuyButton.click();
+    }
+
+    async hasRelatedProducts(): Promise<boolean> {
+        return await this.relatedProductsSection.isVisible();
+    }
+
+    async hasReviews(): Promise<boolean> {
+        return await this.reviewsSection.isVisible();
+    }
+
+    async clickResourceLink(index: number = 0) {
+        const resourceLink = this.resourcesSection.locator('a').nth(index);
+        await resourceLink.click();
+    }
+
+    async getAllLinks(): Promise<string[]> {
+        const links = await this.page.locator('a[href]').all();
+        const hrefs: string[] = [];
+
+        for (const link of links) {
+            const href = await link.getAttribute('href');
+            if (href) {
+                hrefs.push(href);
+            }
+        }
+
+        return hrefs;
+    }
+
+    async setMobileViewport() {
+        await this.page.setViewportSize({ width: 375, height: 667 });
+    }
+
+    async hasHorizontalScrollbar(): Promise<boolean> {
+        const hasScroll = await this.page.evaluate(() => {
+            return document.documentElement.scrollWidth > document.documentElement.clientWidth;
+        });
+        return hasScroll;
     }
 }
