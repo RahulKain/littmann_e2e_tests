@@ -11,14 +11,14 @@ export class Footer {
 
     constructor(page: Page) {
         this.page = page;
-        this.footerContainer = page.locator('footer');
-        // Using getByRole for links found in footer
-        // Note: Specific locators might need adjustment based on actual DOM structure if roles are ambiguous
-        this.contactUsLink = page.getByRole('link', { name: /^contact us$/i });
-        this.whereToBuyLink = page.getByRole('link', { name: /^where to buy$/i });
-        // Simplified regex to match "Legal" and "Privacy" exactly as seen in DOM check
-        this.legalInfoLink = page.getByRole('link', { name: /^legal$/i });
-        this.privacyPolicyLink = page.getByRole('link', { name: /^privacy$/i });
+        // Verified by browser agent: Footer is a div with class 'm-footer'
+        this.footerContainer = page.locator('.m-footer').first();
+
+        // Scope all links to the footer container to avoid matching Header links
+        this.contactUsLink = this.footerContainer.getByRole('link', { name: /^contact us$/i });
+        this.whereToBuyLink = this.footerContainer.getByRole('link', { name: /^where to buy$/i });
+        this.legalInfoLink = this.footerContainer.getByRole('link', { name: /^legal$/i });
+        this.privacyPolicyLink = this.footerContainer.getByRole('link', { name: /^privacy$/i });
     }
 
     async scrollIntoView() {
