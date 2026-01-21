@@ -19,21 +19,31 @@ export class HomePage {
     }
 
     async navigate() {
+        // Register handler for the cookie dialog to settle it whenever it appears
+        // This is more robust than a one-time check
+        const acceptBtn = this.page.getByRole('button', { name: 'Accept Cookies' });
+        const rejectBtn = this.page.getByRole('button', { name: 'Reject Non-Essential Cookies' });
+
+        await this.page.addLocatorHandler(acceptBtn, async () => {
+            console.log('Locator Handler: Accepting cookies...');
+            await acceptBtn.click();
+        });
+
+        // Add a handler for the reject button just in case
+        await this.page.addLocatorHandler(rejectBtn, async () => {
+            console.log('Locator Handler: Rejecting cookies...');
+            await rejectBtn.click();
+        });
+
         await this.page.goto('/');
         await this.page.waitForLoadState('load');
-        await this.acceptCookies();
+        // Give a moment for the handler to trigger if immediate
+        await this.page.waitForTimeout(2000);
     }
 
+    // Deprecated manual method, keeping as fallback or utility if needed
     async acceptCookies() {
-        // Handle OneTrust/Cookie Banner
-        const acceptBtn = this.page.getByRole('button', { name: /accept cookies|confirm/i });
-        try {
-            if (await acceptBtn.isVisible({ timeout: 5000 })) {
-                await acceptBtn.click();
-            }
-        } catch (e) {
-            // Ignore if not found
-        }
+        // Logic moved to addLocatorHandler in navigate()
     }
 
     async isLoaded() {
