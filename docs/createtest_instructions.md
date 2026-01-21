@@ -13,7 +13,7 @@ This document enables AI agents to create high-quality, maintainable Playwright 
 
 | Property | Value | Notes |
 |----------|-------|-------|
-| **Test Case ID** | `TC003| From testcases.md |
+| **Test Case ID** | `TC007| From testcases.md |
 | **Reference** | `testcases.md` |
 
 **Example:**
@@ -395,6 +395,9 @@ npx playwright test --grep="TC001" --repeat-each=3
 - [x] TC001: Verify homepage loads successfully ✅
 - [x] TC002: Verify Products menu navigation ✅
 - [x] TC003: Verify "All Products" page load ✅
+- [x] TC004: Verify "Our Innovation" menu navigation ✅
+- [x] TC005: Verify "Why Choose" page load ✅
+- [x] TC006: Verify "Tools & Resources" menu navigation ✅
 ```
 
 ---
@@ -478,3 +481,51 @@ page.getByRole('button', { name: 'Log In' })
 ---
 
 **Remember:** One test at a time. Quality > Speed. Fix immediately, don't accumulate failures.
+
+---
+
+## 10. COMMON ERRORS & FIXES (LESSONS LEARNED)
+
+### 🚨 Navigation Failures (Menu vs Link)
+**Issue:** Clicking a top-level menu item fails to navigate due to overlays or interception.
+**Fix:**
+- Check if the link has an `href`.
+- If `href` exists, use `page.goto(href)` for reliable navigation.
+- If no `href` (dropdown), use `force: true` or `dispatchEvent('click')` to open.
+```typescript
+const href = await link.getAttribute('href');
+if (href && href.length > 1 && !href.includes('#')) {
+    await page.goto(href); // Reliable
+} else {
+    await link.click({ force: true }); // Dropdown
+}
+```
+
+### 🚨 Text Mismatch (Locators)
+**Issue:** `getByRole('link', { name: 'FAQs' })` fails because text is "FAQ".
+**Fix:**
+- Use **Debugger** to dump visible text when locator fails.
+- Use **Regex** for flexibility: `name: /FAQ|Question|Help/i`.
+- **Debug Pattern:**
+```typescript
+try {
+    await expect(locator).toBeVisible();
+} catch (e) {
+    const texts = await page.evaluate(() => Array.from(document.querySelectorAll('a')).map(a => a.innerText));
+    console.log('VISIBLE LINKS:', texts.join(' | '));
+    throw e;
+}
+```
+
+### 🚨 Strict Mode Violations
+**Issue:** `getByRole('heading', { level: 1 })` finds multiple elements (Desktop + Mobile).
+**Fix:**
+- Always chain `.first()` or `.filter({ hasText: ... })`.
+- Use `.last()` if `.first()` targets a hidden mobile element.
+
+### 🚨 Hidden Mobile Elements
+**Issue:** `.first()` often picks up a hidden mobile menu item that isn't interactive.
+**Fix:**
+- Use `toBeVisible()` assertions.
+- Use `.last()` if the desktop element is at the end of the DOM.
+- Prefer `page.locator('nav').getByRole(...)` to scope to the main navigation.

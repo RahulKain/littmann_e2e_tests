@@ -54,17 +54,25 @@ Use the following format for ALL commit messages:
 ### Rule: Commit After Each Logical Unit
 
 **Logical Units:**
+- 🔴 **Separate commits for EACH page object**
+- 🔴 **Separate commits for EACH test case**
 - ✅ One component file
-- ✅ One page object file
-- ✅ One test case (TC###)
 - ✅ One fixture update
 - ✅ One configuration change
 - ✅ One documentation file
 
 **❌ NOT Logical Units:**
 - ❌ Multiple components in one commit
-- ❌ Multiple test cases in one commit
+- ❌ Multiple test cases in one commit (even if in same file)
+- ❌ Multiple page objects in one commit
 - ❌ Entire module in one commit
+
+### STRICT COMMIT RULES
+
+1. **Page Objects:** If you create `LoginPage.ts` and `DashboardPage.ts`, you MUST create **2 separate commits**.
+2. **Test Cases:** If you implement `TC001` and `TC002`, you MUST create **2 separate commits**.
+   - Use `git add -p` or similar to stage chunks if they are in the same file.
+   - If `git add -p` is not available, try to implement and commit one by one.
 
 ---
 
