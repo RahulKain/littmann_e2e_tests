@@ -447,4 +447,58 @@ test.describe('Module 1: Navigation & Page Load', () => {
         console.log('TC011: Test completed successfully.');
     });
 
+    test('TC012: Verify footer navigation links', async ({ homePage, footer, page }) => {
+        console.log('TC012: Starting test - Verify footer navigation links');
+
+        // ARRANGE
+        console.log('TC012: Navigating to homepage...');
+        await homePage.navigate();
+
+        // ACT
+        console.log('TC012: Scrolling to footer...');
+        await footer.scrollIntoView();
+
+        // ASSERT
+        console.log('TC012: Verifying footer sections are visible...');
+        // We can verify a few key links to ensure footer is rendered
+        await expect(footer.contactUsLink).toBeVisible();
+        await expect(footer.whereToBuyLink).toBeVisible();
+        // Check privacy/legal
+        await expect(footer.privacyPolicyLink).toBeVisible();
+        await expect(footer.legalInfoLink).toBeVisible();
+
+        // Verify "Where to Buy" navigation
+        console.log('TC012: Clicking "Where to Buy" footer link...');
+        // Capture href to verify navigation logic
+        const wtbHref = await footer.whereToBuyLink.getAttribute('href');
+        console.log('TC012: Where To Buy HREF:', wtbHref);
+
+        if (wtbHref && wtbHref.length > 1) {
+            // If strict click fails due to overlaps, we force usually or use goto. 
+            // Footer links are often reliable.
+            await footer.clickWhereToBuy();
+            await expect(page).toHaveURL(/where-to-buy/i);
+            console.log('TC012: Verified navigation to Where to Buy');
+
+            // Go back
+            await page.goBack();
+        } else {
+            console.log('TC012: Where to buy link has no href?');
+        }
+
+        // Verify "Contact Us" navigation
+        console.log('TC012: Clicking "Contact Us" footer link...');
+        await footer.scrollIntoView();
+        const contactHref = await footer.contactUsLink.getAttribute('href');
+        console.log('TC012: Contact Us HREF:', contactHref);
+
+        if (contactHref && contactHref.length > 1) {
+            await footer.clickContactUs();
+            await expect(page).toHaveURL(/contact-us|contact/i);
+            console.log('TC012: Verified navigation to Contact Us');
+        }
+
+        console.log('TC012: Test completed successfully.');
+    });
+
 });
