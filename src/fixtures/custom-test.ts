@@ -4,12 +4,20 @@ import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 
 import { ProductListingPage } from '../pages/ProductListingPage';
+import { WhyChoosePage } from '../pages/WhyChoosePage';
+import { ContactUsPage } from '../pages/ContactUsPage';
+import { WhereToBuyPage } from '../pages/WhereToBuyPage';
+import { ProductDetailPage } from '../pages/ProductDetailPage';
 
 type MyFixtures = {
     homePage: HomePage;
     header: Header;
     footer: Footer;
     productListingPage: ProductListingPage;
+    whyChoosePage: WhyChoosePage;
+    contactUsPage: ContactUsPage;
+    whereToBuyPage: WhereToBuyPage;
+    productDetailPage: ProductDetailPage;
 };
 
 export const test = base.extend<MyFixtures>({
@@ -28,6 +36,22 @@ export const test = base.extend<MyFixtures>({
     productListingPage: async ({ page }, use) => {
         const plp = new ProductListingPage(page);
         await use(plp);
+    },
+    whyChoosePage: async ({ page }, use) => {
+        const wcp = new WhyChoosePage(page);
+        await use(wcp);
+    },
+    contactUsPage: async ({ page }, use) => {
+        const cup = new ContactUsPage(page);
+        await use(cup);
+    },
+    whereToBuyPage: async ({ page }, use) => {
+        const wtb = new WhereToBuyPage(page);
+        await use(wtb);
+    },
+    productDetailPage: async ({ page }, use) => {
+        const pdp = new ProductDetailPage(page);
+        await use(pdp);
     },
 });
 
