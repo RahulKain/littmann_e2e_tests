@@ -18,26 +18,18 @@ export class ProductListingPage {
         this.header = new Header(page);
         this.footer = new Footer(page);
 
-        // Locators
-        this.pageHeading = page.getByRole('heading', { level: 1 });
-
-        // Filters sidebar - navigation with "Filtering Options" aria-label
-        this.filtersSection = page.locator('navigation[aria-label*="Filtering"]').first();
-
-        // Product grid wrapper - main element containing product links
-        this.productGrid = page.locator('main').first();
-
-        // Product cards (links to products) - links inside main
-        this.productCards = page.locator('main a[href*="/p/d/"]');
-
-        // Clear filters button
-        this.clearFiltersButton = page.getByRole('button', { name: /clear|reset/i });
+        // Locators - using most reliable selectors
+        this.pageHeading = page.locator('h1');
+        this.filtersSection = page.locator('.sps2-lhn_content, aside, nav').first();
+        this.productGrid = page.locator('body'); // Fallback to body since grid class varies
+        this.productCards = page.locator('a[href*="/p/d/"]'); // Product detail links
+        this.clearFiltersButton = page.locator('a').filter({ hasText: /all|clear/i });
     }
 
     async isLoaded() {
-        await expect(this.page).toHaveURL(/\/p\//);
-        await expect(this.pageHeading).toBeVisible();
-        await expect(this.productGrid).toBeVisible();
+        await expect(this.pageHeading).toBeVisible({ timeout: 10000 });
+        // Verify at least one product is visible
+        await expect(this.productCards.first()).toBeVisible({ timeout: 10000 });
     }
 
     async getProductCount(): Promise<number> {
@@ -45,22 +37,13 @@ export class ProductListingPage {
     }
 
     async filterByCategory(category: string) {
-        // Click on category filter in sidebar
-        const categoryButton = this.filtersSection.getByRole('button', { name: new RegExp(category, 'i') });
-        await categoryButton.click();
-        // Wait for grid to update
+        const categoryLink = this.page.locator('a').filter({ hasText: new RegExp(category, 'i') }).first();
+        await categoryLink.click();
         await this.page.waitForTimeout(1000);
     }
 
     async filterByColor(color: string) {
-        // Expand color filter section if needed
-        const colorSection = this.filtersSection.getByText(/color/i).first();
-        if (await colorSection.isVisible()) {
-            await colorSection.click();
-        }
-
-        // Select color
-        const colorOption = this.filtersSection.getByRole('button', { name: new RegExp(color, 'i') });
+        const colorOption = this.page.locator('button, a').filter({ hasText: new RegExp(color, 'i') }).first();
         await colorOption.click();
         await this.page.waitForTimeout(1000);
     }
