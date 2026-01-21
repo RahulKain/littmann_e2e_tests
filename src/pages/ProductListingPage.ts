@@ -21,14 +21,14 @@ export class ProductListingPage {
         // Locators
         this.pageHeading = page.getByRole('heading', { level: 1 });
 
-        // Filters sidebar (left-hand navigation)
-        this.filtersSection = page.locator('.m-lhn, .sps2-lhn, aside').first();
+        // Filters sidebar - navigation with "Filtering Options" aria-label
+        this.filtersSection = page.locator('navigation[aria-label*="Filtering"]').first();
 
-        // Product grid wrapper
-        this.productGrid = page.locator('.mds-grid, .product-grid').first();
+        // Product grid wrapper - main element containing product links
+        this.productGrid = page.locator('main').first();
 
-        // Product cards (links to products)
-        this.productCards = page.locator('a.mds-link');
+        // Product cards (links to products) - links inside main
+        this.productCards = page.locator('main a[href*="/p/d/"]');
 
         // Clear filters button
         this.clearFiltersButton = page.getByRole('button', { name: /clear|reset/i });
