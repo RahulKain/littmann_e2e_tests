@@ -30,4 +30,20 @@ export class ProductListingPage {
         await expect(this.page).toHaveURL(/\/p\//);
         await expect(this.pageHeading).toBeVisible();
     }
+
+    async selectFirstProduct() {
+        // Use text-based filtering which is more robust than guessing CSS classes
+        // Based on debug output: "3M™ Littmann® Classic III™ Monitoring Stethoscope..."
+        const productLink = this.page.locator('a').filter({ hasText: /Classic III|Cardiology IV|Master Cardiology/i }).first();
+
+        try {
+            await productLink.waitFor({ state: 'visible', timeout: 5000 });
+            await productLink.click();
+        } catch (e) {
+            console.log('TC011: Failed to find product link via text. Dumping ALL links...');
+            const links = await this.page.evaluate(() => Array.from(document.querySelectorAll('a')).map(a => a.innerText));
+            console.log('VISIBLE LINKS:', links.join(' | '));
+            throw e;
+        }
+    }
 }
