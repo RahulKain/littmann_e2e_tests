@@ -102,4 +102,349 @@ test.describe('Module 1: Navigation & Page Load', () => {
         console.log('TC003: Test completed successfully.');
     });
 
+    test('TC004: Verify "Our Innovation" menu navigation', async ({ homePage, page }) => {
+        console.log('TC004: Starting test - Verify "Our Innovation" menu navigation');
+
+        // ARRANGE
+        console.log('TC004: Navigating to homepage...');
+        await homePage.navigate();
+
+        // ACT
+        console.log('TC004: Opening "Our Innovation" menu...');
+        await homePage.header.clickInnovation();
+
+        // ASSERT
+        console.log('TC004: Verifying submenu items...');
+
+        const expectedItems = [
+            'Why Choose',
+            'CORE Digital', // Might be "CORE Digital Stethoscope" or "Electronic"
+            'Testimonials' // Might be "Success Stories" or similar
+        ];
+
+        // Using generic getSubmenuLink with .first() to handle likely duplicates
+        const whyChoose = homePage.header.getSubmenuLink('Why Choose').first();
+        await expect(whyChoose).toBeVisible();
+        console.log('TC004: Verified "Why Choose" visible');
+
+        const core = homePage.header.getSubmenuLink('CORE|Digital').first();
+        await expect(core).toBeVisible();
+        console.log('TC004: Verified "CORE/Digital" visible');
+
+        // "Testimonials" check - flexible regex
+        const testimonials = homePage.header.getSubmenuLink('Testimonials|Stories').first();
+        await expect(testimonials).toBeVisible();
+        console.log('TC004: Verified "Testimonials/Stories" visible');
+
+        console.log('TC004: Test completed successfully.');
+    });
+
+    test('TC005: Verify "Why Choose" page load', async ({ homePage, whyChoosePage, page }) => {
+        console.log('TC005: Starting test - Verify "Why Choose" page load');
+
+        // ARRANGE
+        console.log('TC005: Navigating to homepage...');
+        await homePage.navigate();
+
+        // ACT
+        console.log('TC005: Opening "Our Innovation" menu...');
+        await homePage.header.clickInnovation();
+
+        console.log('TC005: Clicking "Why Choose" link...');
+        // We use .last() as .first() might be invalid/hidden
+        const link = homePage.header.getSubmenuLink('Why Choose').last();
+        const href = await link.getAttribute('href');
+        console.log('TC005: Link Href:', href);
+
+        if (href) {
+            console.log('TC005: Navigating directly to href (workaround for overlay issues)...');
+            await page.goto(href);
+        } else {
+            throw new Error('TC005: Link "Why Choose" has no href!');
+        }
+
+        // ASSERT
+        console.log('TC005: Verifying page load...');
+        await whyChoosePage.isLoaded();
+
+        console.log('TC005: Test completed successfully.');
+    });
+
+    test('TC006: Verify "Tools & Resources" menu navigation', async ({ homePage, page }) => {
+        console.log('TC006: Starting test - Verify "Tools & Resources" menu navigation');
+
+        // ARRANGE
+        console.log('TC006: Navigating to homepage...');
+        await homePage.navigate();
+
+        // ACT
+        console.log('TC006: Opening "Tools & Resources" menu...');
+        await homePage.header.clickToolsResources();
+
+        // ASSERT
+        console.log('TC006: Verifying submenu items...');
+
+        // Define expected items to check (mix of exact and regex for robustness)
+        // Stethoscope Care, Authenticity, Warranty & Repairs, FAQs, Contact Us
+
+        // 1. Stethoscope Care
+        const care = homePage.header.getSubmenuLink('Stethoscope Care').first();
+        await expect(care).toBeVisible();
+        console.log('TC006: Verified "Stethoscope Care" visible');
+
+        // 2. Authenticity (might be "Avoid Counterfeits")
+        const authenticity = homePage.header.getSubmenuLink('Authenticity|Counterfeit').first();
+        await expect(authenticity).toBeVisible();
+        console.log('TC006: Verified "Authenticity" visible');
+
+        // 3. Warranty & Repairs
+        const warranty = homePage.header.getSubmenuLink('Warranty|Repairs').first();
+        await expect(warranty).toBeVisible();
+        console.log('TC006: Verified "Warranty & Repairs" visible');
+
+        // 4. FAQs
+        const faqs = homePage.header.getSubmenuLink('FAQ').first();
+        await expect(faqs).toBeVisible();
+        console.log('TC006: Verified "FAQs" visible');
+
+        // 5. Contact Us
+        const contact = homePage.header.getSubmenuLink('Contact Us').first();
+        await expect(contact).toBeVisible();
+        console.log('TC006: Verified "Contact Us" visible');
+
+        console.log('TC006: Test completed successfully.');
+    });
+
+    test('TC007: Verify "Contact Us" page load', async ({ homePage, contactUsPage, page }) => {
+        console.log('TC007: Starting test - Verify "Contact Us" page load');
+
+        // ARRANGE
+        console.log('TC007: Navigating to homepage...');
+        await homePage.navigate();
+
+        // ACT
+        console.log('TC007: Opening "Tools & Resources" menu...');
+        await homePage.header.clickToolsResources();
+
+        console.log('TC007: Clicking "Contact Us" link...');
+        const contactLink = homePage.header.getSubmenuLink('Contact Us').last();
+
+        // Use direct navigation workaround if overlay issues persist, but try dispatchEvent first
+        // Usually Contact Us is a standard link.
+
+        // Debug href first
+        const href = await contactLink.getAttribute('href');
+        console.log('TC007: Link Href:', href);
+
+        if (href && href.length > 1) {
+            console.log('TC007: Navigating directly to href (workaround for overlay issues)...');
+            await page.goto(href);
+        } else {
+            console.log('TC007: Dispatching click event...');
+            await contactLink.dispatchEvent('click');
+        }
+
+        // ASSERT
+        console.log('TC007: Verifying page load...');
+        await contactUsPage.isLoaded();
+
+        console.log('TC007: Test completed successfully.');
+    });
+
+    test('TC008: Verify "Education & Training" menu navigation', async ({ homePage, page }) => {
+        console.log('TC008: Starting test - Verify "Education & Training" menu navigation');
+
+        // ARRANGE
+        console.log('TC008: Navigating to homepage...');
+        await homePage.navigate();
+
+        // ACT
+        console.log('TC008: Opening "Education & Training" menu...');
+        // Manual force click to ensure it opens
+        await homePage.header.educationMenu.click({ force: true });
+
+        // Wait for animation
+        await page.waitForTimeout(1000);
+
+        // ASSERT
+        console.log('TC008: Verifying menu items/navigation...');
+
+        // Check if the menu itself has an href
+        const educationMenu = homePage.header.educationMenu;
+        const href = await educationMenu.getAttribute('href');
+        console.log('TC008: Menu HREF:', href);
+
+        if (href && href.length > 1 && !href.includes('#')) {
+            console.log('TC008: Navigating directly to href...');
+            // Force verify we are not already there or just goto
+            const currentUrl = page.url();
+            if (currentUrl.includes(href)) {
+                console.log('TC008: Already on the page? Reloading to verify...');
+                await page.reload();
+            } else {
+                await page.goto(href);
+            }
+
+            // Verify we are on an education related page
+            await expect(page).toHaveURL(/education|training|learning/i);
+            console.log('TC008: Verified navigation to Education page');
+
+            // Verify heading - accepting H1 or H2 or H3
+            const heading = page.locator('h1, h2, h3').filter({ hasText: /Education|Training|Learning/i }).first();
+            await expect(heading).toBeVisible();
+            console.log('TC008: Verified page heading visible');
+        } else {
+            console.log('TC008: No href found, assuming dropdown interaction...');
+
+            // 1. "How To Listen"
+            const howToListen = homePage.header.getSubmenuLink('How To Listen').first();
+            await expect(howToListen).toBeVisible();
+            console.log('TC008: Verified "How To Listen" visible');
+
+            // 2. "Better Sound, Better Learning"
+            const learning = homePage.header.getSubmenuLink('Learning').first();
+            await expect(learning).toBeVisible();
+            console.log('TC008: Verified "Better Sound, Better Learning" visible');
+        }
+
+        console.log('TC008: Test completed successfully.');
+    });
+
+
+    test('TC009: Verify "Latest News" menu navigation', async ({ homePage, page }) => {
+        console.log('TC009: Starting test - Verify "Latest News" menu navigation');
+
+        // ARRANGE
+        console.log('TC009: Navigating to homepage...');
+        await homePage.navigate();
+
+        // ACT
+        console.log('TC009: Opening "Latest News" menu...');
+        // Manual force click to ensure it opens
+        await homePage.header.clickLatestNews();
+
+        // Wait for animation
+        await page.waitForTimeout(1000);
+
+        // ASSERT
+        console.log('TC009: Verifying menu items/navigation...');
+
+        // Check if the menu itself has an href
+        const newsMenu = homePage.header.newsMenu;
+        const href = await newsMenu.getAttribute('href');
+        console.log('TC009: Menu HREF:', href);
+
+        if (href && href.length > 1 && !href.includes('#')) {
+            console.log('TC009: Navigating directly to href...');
+            const currentUrl = page.url();
+            if (currentUrl.includes(href)) {
+                await page.reload();
+            } else {
+                await page.goto(href);
+            }
+
+            // Verify we are on a news related page
+            await expect(page).toHaveURL(/news|press|latest/i);
+            console.log('TC009: Verified navigation to News page');
+
+            // Verify heading
+            const heading = page.locator('h1, h2, h3').filter({ hasText: /News|Press/i }).first();
+            await expect(heading).toBeVisible();
+            console.log('TC009: Verified page heading visible');
+        } else {
+            console.log('TC009: No href found, assuming dropdown interaction...');
+
+            // Debug block to find items if unknown
+            try {
+                // "Whats Happening" is the observed item from debug logs
+                const newsItem = homePage.header.getSubmenuLink('Whats Happening').first();
+                await expect(newsItem).toBeVisible();
+                console.log('TC009: Verified "Whats Happening" visible');
+            } catch (e) {
+                console.log('TC009: Dropdown check failed. Dumping ALL NAV links...');
+                const links = await page.evaluate(() => Array.from(document.querySelectorAll('nav a, div[class*="nav"] a')).map(a => a.innerText));
+                console.log('VISIBLE NAV LINKS:', links.join(' | '));
+                throw e;
+            }
+        }
+
+        console.log('TC009: Test completed successfully.');
+    });
+
+
+    test('TC010: Verify "Where to Buy" menu navigation', async ({ homePage, whereToBuyPage, page }) => {
+        console.log('TC010: Starting test - Verify "Where to Buy" menu navigation');
+
+        // ARRANGE
+        console.log('TC010: Navigating to homepage...');
+        await homePage.navigate();
+
+        // ACT
+        console.log('TC010: Opening "Where to Buy" menu...');
+        const whereToBuy = homePage.header.whereToBuyMenu;
+
+        // Check HREF first (Robust Navigation)
+        const href = await whereToBuy.getAttribute('href');
+        console.log('TC010: Link Href:', href);
+
+        if (href && href.length > 1 && !href.includes('#')) {
+            console.log('TC010: Navigating directly to href...');
+            await page.goto(href);
+        } else {
+            console.log('TC010: Clicking menu item...');
+            await homePage.header.clickWhereToBuy();
+        }
+
+        // ASSERT
+        console.log('TC010: Verifying page load...');
+        try {
+            await whereToBuyPage.isLoaded();
+        } catch (e) {
+            console.log('TC010: Verification failed. Debugging...');
+            console.log('TC010: Current URL:', page.url());
+            const headings = await page.evaluate(() => Array.from(document.querySelectorAll('h1, h2, h3')).map(h => h.innerText));
+            console.log('TC010: Visible Headings:', headings.join(' | '));
+            throw e;
+        }
+
+        console.log('TC010: Test completed successfully.');
+    });
+
+
+    test('TC011: Verify breadcrumb navigation on product page', async ({ homePage, productListingPage, productDetailPage, page }) => {
+        console.log('TC011: Starting test - Verify breadcrumb navigation');
+
+        // ARRANGE
+        console.log('TC011: Navigating to homepage...');
+        await homePage.navigate();
+
+        // Navigate to All Products (PLP) - reusing TC003 logic or similar
+        console.log('TC011: Navigating to Product Listing Page...');
+        await homePage.header.clickProducts();
+
+        const allProductsLink = homePage.header.getSubmenuLink('All Littmann Stethoscope Products').last();
+        // Robust navigation check
+        const href = await allProductsLink.getAttribute('href');
+        if (href && href.length > 1) {
+            await page.goto(href);
+        } else {
+            await allProductsLink.dispatchEvent('click');
+        }
+        await productListingPage.isLoaded();
+        console.log('TC011: Loaded Product Listing Page');
+
+        // ACT
+        console.log('TC011: Selecting first product...');
+        await productListingPage.selectFirstProduct();
+
+        // ASSERT
+        console.log('TC011: Verifying Product Detail Page load...');
+        await productDetailPage.isLoaded();
+
+        console.log('TC011: Verifying Breadcrumb...');
+        await productDetailPage.verifyBreadcrumb();
+
+        console.log('TC011: Test completed successfully.');
+    });
+
 });
