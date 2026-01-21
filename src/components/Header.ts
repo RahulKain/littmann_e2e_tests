@@ -27,8 +27,16 @@ export class Header {
     }
 
     async search(query: string) {
+        // Clear existing value first if needed, though fill usually does it
         await this.searchInput.fill(query);
+        // Press Enter (standard behavior)
         await this.searchInput.press('Enter');
+        // Option: Click button if Enter doesn't work (robustness)
+        // await this.searchButton.click();
+    }
+
+    async clearSearch() {
+        await this.searchInput.fill('');
     }
 
     async clickProducts() {
