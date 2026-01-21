@@ -21,6 +21,19 @@ export class HomePage {
     async navigate() {
         await this.page.goto('/');
         await this.page.waitForLoadState('load');
+        await this.acceptCookies();
+    }
+
+    async acceptCookies() {
+        // Handle OneTrust/Cookie Banner
+        const acceptBtn = this.page.getByRole('button', { name: /accept cookies|confirm/i });
+        try {
+            if (await acceptBtn.isVisible({ timeout: 5000 })) {
+                await acceptBtn.click();
+            }
+        } catch (e) {
+            // Ignore if not found
+        }
     }
 
     async isLoaded() {
