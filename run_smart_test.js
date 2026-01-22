@@ -22,6 +22,23 @@ playwright.on('close', (code) => {
 
     // Check if report exists
     if (fs.existsSync(reportPath)) {
+        // Post-process report to fix title (since config options aren't working)
+        try {
+            let content = fs.readFileSync(reportPath, 'utf8');
+            const customTitle = '🏥 Littmann Stethoscopes E2E Automation';
+
+            // Replace header title
+            content = content.replace(/StageWright Local/g, customTitle);
+
+            // Replace page title
+            content = content.replace(/<title>Smart Test Report<\/title>/, `<title>${customTitle}</title>`);
+
+            fs.writeFileSync(reportPath, content);
+            console.log('✅ Updated report title to:', customTitle);
+        } catch (err) {
+            console.error('⚠️ Failed to update report title:', err.message);
+        }
+
         console.log(`📊 Opening Smart Report: ${reportPath}`);
 
         // Open the report based on OS
