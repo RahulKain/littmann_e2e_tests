@@ -6,15 +6,17 @@
         "test": "playwright test",
         "test:ui": "playwright test --ui",
         "test:debug": "playwright test --debug",
+        "smart": "node run_smart_test.js",
         "report": "playwright show-report"
     },
     "keywords": [],
-    "author": "AI Agent",
+    "author": "Rahul Kain",
     "license": "ISC",
     "devDependencies": {
         "@playwright/test": "^1.40.0",
         "@types/node": "^20.10.0",
         "dotenv": "^16.3.1",
+        "playwright-smart-reporter": "^1.0.3",
         "typescript": "^5.3.3"
     }
 }
