@@ -1,11 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
-import dotenv from 'dotenv';
 import path from 'path';
 
-// Load environment variables from .env file
-dotenv.config({ path: path.resolve(__dirname, '.env') });
+const baseURL = 'https://www.littmann.in/3M/en_IN/littmann-stethoscopes-in/';
 
-const baseURL = process.env.BASE_URL || 'https://www.littmann.in/3M/en_IN/littmann-stethoscopes-in/';
 
 export default defineConfig({
     testDir: './src/tests',
@@ -17,6 +14,9 @@ export default defineConfig({
         ['html', { open: 'never' }],
         ['list'],
         ['playwright-smart-reporter', {
+            title: '🏥 Littmann Stethoscopes E2E Automation',
+            projectTitle: '🏥 Littmann Stethoscopes E2E Automation',
+            reportTitle: '🏥 Littmann Stethoscopes E2E Automation',
             outputFile: path.resolve(__dirname, 'playwright-report/smart-report.html'),
             historyFile: path.resolve(__dirname, 'playwright-report/test-history.json'),
             maxHistoryRuns: 10,
@@ -50,6 +50,7 @@ export default defineConfig({
         navigationTimeout: 60000,
         ignoreHTTPSErrors: true,
     },
+
 
     projects: [
         {
