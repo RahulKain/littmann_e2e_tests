@@ -27,9 +27,9 @@ export class ProductListingPage {
     }
 
     async isLoaded() {
-        await expect(this.pageHeading).toBeVisible({ timeout: 10000 });
+        await expect(this.pageHeading).toBeVisible({ timeout: 5000 });
         // Verify at least one product is visible
-        await expect(this.productCards.first()).toBeVisible({ timeout: 10000 });
+        await expect(this.productCards.first()).toBeVisible({ timeout: 5000 });
     }
 
     async getProductCount(): Promise<number> {
