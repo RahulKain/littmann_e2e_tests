@@ -25,16 +25,17 @@ The project follows a strict **Component Object Model (COM)** (see [Standards](.
 
 ---
 
+
 ## 📊 Coverage Status
 
 | Module | Focus Area | Status |
 |:------:|------------|:------:|
-| **M1** | Navigation & Page Load | ✅ Active |
-| **M2** | Search Functionality | ✅ Active |
-| **M3** | Product Catalog | ✅ Active |
-| **M4** | Contact Form | ✅ Active |
-| **M5** | Dealer Locator | ✅ Active |
-| **M6** | UI Consistency | ✅ Active |
+| **M1** | Navigation & Page Load | ✅ Active (11/12 Tests) |
+| **M2** | Search Functionality | ⏳ Planned |
+| **M3** | Product Catalog | ⏳ Planned |
+| **M4** | Contact Form | ⏳ Planned |
+| **M5** | Dealer Locator | ⏳ Planned |
+| **M6** | UI Consistency | ⏳ Planned |
 
 For a detailed breakdown of test cases, refer to [`testcases.md`](./testcases.md).
 
@@ -77,6 +78,7 @@ cp .env.example .env
 | Action | Command |
 |--------|---------|
 | **Run All Tests** | `npm test` |
+| **Smart Run (Auto-Report)** | `npm run smart` |
 | **Interactive UI** | `npm run test:ui` |
 | **Debug Mode** | `npm run test:debug` |
 | **View Report** | `npm run report` |
